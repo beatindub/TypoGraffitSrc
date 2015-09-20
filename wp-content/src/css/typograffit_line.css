@@ -56,7 +56,7 @@ body{
   margin: 25px auto;
   width: auto;
   height: auto;
-  min-height: 100px;
+  min-height: 50px;
   max-height: 300px;
   background-size:contain;  
 }
@@ -190,8 +190,8 @@ textarea#typoData::-moz-placeholder{
   position: absolute;
   text-align: right;
   vertical-align: top;
-  width:310px;
-  max-width:310px;
+  width:580px;
+  max-width:580px;
   right: 10px;
   top: 8px;
   display: none;
@@ -215,7 +215,7 @@ textarea#typoData::-moz-placeholder{
 #emojiWrap ul li img{
   width: 64px;
   height: auto;
-  margin: 0px 6px;
+  margin: 0px 4px;
 }
 #emojiWrap ul li img:hover{
   opacity:0.6;
@@ -292,28 +292,56 @@ textarea#typoData::-moz-placeholder{
 /* DOWNLOAD SHARE */
 #socialBox{
   width:100%;
-  height: 40px;
+  height: 45px;
   margin:15px auto;
   text-align: center;
-  position: relative;
   display: inline-block;
 }
 
 #social{
+  display: none;
+  border:1px solid #1DC121;
+  background-color: #1DC121;
+  width:60%;
+  max-width:200px;
+  height: 45px;
+  margin:0 auto;
+  padding: 3px;
+  text-align: center;
+  vertical-align: middle;
   position: relative;
-  display: inline-block;
+}
+#social a{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  text-indent:-999px;
 }
 #socialBox #social img{
+  position:absolute;
   margin: auto;
+  left: 80px;
 }
 
-#socialBox #social img:hover {
+#socialBox #social:hover {
 /*#socialBox #social:hover img {*/
   opacity:0.6;
   filter: alpha(opacity=60);
   -ms-filter: "alpha( opacity=60 )";
-  background: #ffffff;
+  background: #1DC121;
 }
+
+#social.deactive{
+  pointer-events:none;
+  cursor:default;
+  opacity:0.4;
+  filter: alpha(opacity=40);
+  -ms-filter: "alpha( opacity=40 )";
+}
+
+
 
 /* EXPERIMENTAL */
 .dummy {
@@ -328,7 +356,7 @@ textarea#typoData::-moz-placeholder{
 
 #footer{
   width:95%;
-  margin:10px auto;
+  margin:15px auto;
   font-size:12px;
   text-align: center;
 }
@@ -339,8 +367,16 @@ textarea#typoData::-moz-placeholder{
   #typoButton{
     max-width:170px;
   }
-  #social #socialSub{
-    left: 58%;
+}
+
+@media screen and (max-width: 670px) {
+  #emojiList{
+    width:390px;
+    max-width:390px;
+  }
+  #emojiWrap ul li img{
+    height: auto;
+    margin: 0px 3px;
   }
 }
 
@@ -362,8 +398,8 @@ textarea#typoData::-moz-placeholder{
   }
 
   #emojiList{
-    width:200px;
-    max-width:200px;
+    width:240px;
+    max-width:240px;
   }
   #emojiWrap ul li img{
     width: 42px;
@@ -383,14 +419,19 @@ textarea#typoData::-moz-placeholder{
     min-height: 30px;
     max-height: 200px;
   }
+
   #socialBox{
-    height: 45px;
+    height: 36px;
+  }
+  #social{
+    height:36px;
   }
   #socialBox #social img{
-    width:45px;
-    height:45px;
-    margin: auto 4px;
+    width: 36px;
+    height: 36px;
+    left: 85px;
   }
+
 }
 @media screen and (max-width: 320px) {
   #social #socialSub{

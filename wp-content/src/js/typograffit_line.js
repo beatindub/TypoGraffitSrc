@@ -10,7 +10,6 @@ $(document).ready(function() {
 
     //layout INIT
     $('#owl').hide();
-    $("#social").hide();
 
     //Original Image Toggle
     $('a.anchor').on('click touchend', function() {
@@ -54,13 +53,18 @@ $(document).ready(function() {
 
     //Emoji OWL
     $("#emojiWrap").owlCarousel({
-      items : 2,
-      itemsDesktop : [1199,2],
-      itemsDesktopSmall : [979,2],
-      itemsTablet: [768,2],
+      items : 8,
+      itemsDesktop : [1199,8],
+      itemsDesktopSmall : [979,8],
+      itemsTablet: [768,8],
       itemsTabletSmall: false,
-      itemsMobile : [479,2],
-      lazyLoad : true
+      itemsTablet: [670,6],
+      itemsMobile : [479,5],
+      lazyLoad : true,
+      //Basic Speeds
+      slideSpeed : 300,
+      paginationSpeed : 500,
+      rewindSpeed : 700
     });
 
     //Generate Image OWL
@@ -98,15 +102,17 @@ $(document).ready(function() {
         if(currentHashLine == 0){ currentHashLine = jsoncontentid; }
         //console.log("socialHash: ",currentHashLine);
 
-         var lineUrl = 'http://'+window.location.hostname+'/~typograf/blog/line/?h=';
+         var lineUrl = 'http://'+window.location.hostname+'/line/?h=';
         
-        $("#social").html('<a href="http://line.me/R/msg/text/?'+currentText+'%0D%0A'+lineUrl+currentHashLine+'"><img src="../wp-content/src/images/line.png" width="45" height="45" alt="LINE" /></a>');
-
-        if ($("#social").is(':hidden')){
+       // if ($("#social").is(':hidden')){
          // $("#social").fadeIn();
-          $("#social a").removeClass("deactive");
+          $("#social").removeClass("deactive");
           $("#social").animate({height:"show", opacity:"show"},300, "easeOutExpo");
-        }
+       // }
+        $('#socialLine').on('click touchend', function() {
+          $('#socialLine').attr("href",'http://line.me/R/msg/text/?'+currentText+'%0D%0A'+lineUrl+currentHashLine);
+        });
+
         //for T-Shirt //                      
         $("#post_title").value= currentHashLine;
       }
@@ -139,18 +145,18 @@ $(document).ready(function() {
           var inputData = $('textarea#typoData').val();
           inputData = encodeURIComponent(inputData);
 
-          var src1 = 'http://typograffit.com/rest_json/posts/generate/body:';
-          var src2 = 'http://typograffit.com/rest_json/posts/getImage/post_id:';
-          var src3 = 'http://typograffit.com/posts/compose/';
-          var src4 = 'http://typograffit.com/posts/getImage/';
-          var src5 = 'http://typograffit.com/rest_json/posts/getInfo/post_id:';
+          var src1 = 'http://api.typograffit.com/rest_json/posts/generate/body:';
+          var src2 = 'http://api.typograffit.com/rest_json/posts/getImage/post_id:';
+          var src3 = 'http://api.typograffit.com/posts/compose/';
+          var src4 = 'http://api.typograffit.com/posts/getImage/';
+          var src5 = 'http://api.typograffit.com/rest_json/posts/getInfo/post_id:';
 
           //set layout-css
           $("#typoButton").addClass("deactive");
           $('#typoData').addClass("deactive");
           $("#emoji-button").addClass("deactive");
           $("#loading").fadeIn("slow");
-          $("#social a").addClass("deactive");
+          $("#social").addClass("deactive");
           $("#msg").empty();
 
           // get HASH //
@@ -162,29 +168,14 @@ $(document).ready(function() {
               // process HASH to IMAGE //
               success: function(data) {
                   console.log("SUCCESS");
-                  var datatxt = $(data.responseText).text();
-                  var jsoncontentid = $.parseJSON(datatxt).post_id;
+                  var jsoncontentid = $.parseJSON(data).post_id;
                   inputTextLine.push(inputData);
                   hashLine.push(jsoncontentid);
                   console.log("HASH:", jsoncontentid);
                   console.log("hashLine:", hashLine);
                   totalHash += 1;
 
-                  // get IMAGE //
-                  $.ajax({
-                    url: src2+jsoncontentid,
-                    contentType: "image/png",
-                    type: 'GET',
-                    timeout: 10000,
-
-                    // get IMAGE to URL(save/share/tShirt) //
-                    success: function(data2) {
-                      console.log("SUCCESS2");
-                      var datatxt2 = $(data2.responseText).text();
-                      //console.log("COMPOSE IMAGE:", src2+jsoncontentid);
-                      //console.log("CONPOSE URL:", src3+jsoncontentid);
-
-                      //for IMAGE //
+                     //for IMAGE //
                       var sendImg = new Image();
                       //sendImg.crossOrigin = "Anonymous";
                       sendImg.src = src4+jsoncontentid;
@@ -198,12 +189,6 @@ $(document).ready(function() {
                           $('#emoji-button').fadeOut(30);
                         }
 
-                        //if baseImage appears, disappear.
-/*
-                        if ($('#baseImage').is(':visible')){
-                          $("#baseImage").animate({height:"toggle",opacity:"toggle"},500, "easeOutExpo");
-                        }
-*/
                         //set layout-css
                         $('#typoData').removeClass("deactive");
                         $("#loading").hide();
@@ -225,21 +210,8 @@ $(document).ready(function() {
                         }
                         owl.data('owlCarousel').goTo(totalHash);
                       }
-                    },
-
-                    // miss IMAGE //
-                    error: function(data2) {
-                      console.log("ERROR2");
-                      $("#loading").hide();
-                      $("#typoButton").removeClass("deactive");
-                      $("#msg").html('Please try it again.');
-                    },
-                    // complete IMAGE //
-                    complete: function(data2) {
-                      console.log("COMPLETE2");
-                    }
-                  });
               },
+
               // miss HASH //
               error: function(data) {
                   console.log("ERROR");

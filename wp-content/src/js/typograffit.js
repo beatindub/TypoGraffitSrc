@@ -1,4 +1,14 @@
 $(document).ready(function() {
+    //USER AGENT INIT
+    var userAgent = window.navigator.userAgent.toLowerCase(),
+    uaName = 'unknown';
+    if((userAgent.indexOf('iphone') != -1)||(userAgent.indexOf('ipod') != -1)|| (userAgent.indexOf('ipad') != -1)||(userAgent.indexOf('android') != -1)){
+      uaName = 'smartphone';
+    }else{
+      $('.dtophide').hide();
+      $('.dtopshow').show();
+    }
+
     //INIT
     var owl = $("#owl"),
     	hashLine = [],
@@ -11,7 +21,7 @@ $(document).ready(function() {
     //LANGUAGE
     var lang = ""
     lang = getUrlVars()["lang"];
-    if(lang == "ja"){
+    if(lang == "ja" || lang == "ja#generator"){
     	$('#typoData').addClass("japanese");
     }
 
@@ -46,6 +56,13 @@ $(document).ready(function() {
       console.log("CLICK PAGE");
     });
 
+    $('#urlBox').on('click touchend', function() {
+//      this.setSelectionRange(0, this.value.length);
+      var urlBoxText = document.getElementById ("urlBoxText");
+      urlBoxText.selectionStart=0;
+      urlBoxText.selectionEnd=this.value.length;
+    });
+
     //Top image toggle
     $('#top_message_button').on('click touchend', function() {
         var speed = 500;
@@ -57,7 +74,7 @@ $(document).ready(function() {
 
     //Original Image Toggle for Social Landing
     $('a.anchor').on('click touchend', function() {
-        var speed = 200;
+        var speed = 300;
         var href= $(this).attr("href");
         var position = $(href).offset().top;
         $("html, body").animate({scrollTop:position}, speed, "easeOutExpo");
@@ -71,6 +88,19 @@ $(document).ready(function() {
 
     //Emoji OWL
     $("#emojiWrap").owlCarousel({
+      items : 8,
+      itemsDesktop : [1199,8],
+      itemsDesktopSmall : [979,8],
+      itemsTablet: [768,8],
+      itemsTabletSmall: false,
+      itemsTablet: [670,6],
+      itemsMobile : [479,5],
+      lazyLoad : true,
+      //Basic Speeds
+      slideSpeed : 300,
+      paginationSpeed : 500,
+      rewindSpeed : 700
+/*
       items : 2,
       itemsDesktop : [1199,2],
       itemsDesktopSmall : [979,2],
@@ -78,6 +108,7 @@ $(document).ready(function() {
       itemsTabletSmall: false,
       itemsMobile : [479,2],
       lazyLoad : true
+*/
     });
 
     //Generate Image OWL
@@ -115,9 +146,9 @@ $(document).ready(function() {
       	if(currentHashLine == 0){ currentHashLine = jsoncontentid; }
     	  //console.log("socialHash: ",currentHashLine);
 
-    	var imgUrl = 'http://typograffit.com/posts/getImage/';
-    	var landingUrl = 'http://'+window.location.hostname+'/~typograf/blog/compose/?h=';
-        var lineUrl = 'http://'+window.location.hostname+'/~typograf/blog/line/?h=';
+    	var imgUrl = 'http://api.typograffit.com/posts/getImage/';
+    	var landingUrl = 'http://'+window.location.hostname+'/compose/?h=';
+      var lineUrl = 'http://'+window.location.hostname+'/line/?h=';
     	var langLine = "";
     	if(lang == "ja"){
 	    	langLine = '&lang=ja';
@@ -127,14 +158,14 @@ $(document).ready(function() {
         $("#socialSub").hide();
 //        if ($("#social").is(':hidden')){
          // $("#social").fadeIn();
+          $("#urlBoxText").removeClass("deactive");
           $("#social a").removeClass("deactive");
           $('#socialTwitter').removeClass("deactive");
           $("#social").animate({height:"show", opacity:"show"},300, "easeOutExpo");
   //      }
 
-  console.log("landingUrl+currentHashLine:",landingUrl+currentHashLine)
-  console.log("landingUrl+currentHashLine+langLine:",landingUrl+currentHashLine+langLine)
-       
+        $('#urlBoxText').attr("value", landingUrl+currentHashLine+langLine);
+
         $('#socialDownload').on('click touchend', function() {
           $('#socialDownload').attr("href", imgUrl+currentHashLine + '/imgDownload:true/');
         });
@@ -143,9 +174,6 @@ $(document).ready(function() {
         });
         $('#socialTwitter').on('click touchend', function() {
           window.open('http://twitter.com/intent/tweet?text='+currentText+'&amp;hashtags=typograffit&amp;url='+landingUrl+currentHashLine+langLine+'', 'twi', 'width=500 height=300');
-        });
-        $('#socialLine').on('click touchend', function() {
-          $('#socialLine').attr("href",'http://line.me/R/msg/text/?'+currentText+'%0D%0A'+lineUrl+currentHashLine);
         });
         $('#socialGplus').on('click touchend', function() {
         	window.open('https://plus.google.com/share?url='+landingUrl+currentHashLine+langLine+'', 'gplus', 'width=600 height=300');
@@ -157,8 +185,35 @@ $(document).ready(function() {
           window.open('http://www.tumblr.com/share/link?url='+landingUrl+currentHashLine+langLine+'&amp;name=TYPOGRAFFIT : '+currentText+'', 'tum', 'width=450 height=450');
         });
 
+        $('#socialFacebookSp').on('click touchend', function() {
+          window.open('https://www.facebook.com/sharer/sharer.php?u='+landingUrl+currentHashLine+langLine+'', 'fb', 'width=600 height=300');
+        });
+        $('#socialFacebookMsg').on('click touchend', function() {
+          $('#socialFacebookMsg').attr("href",'fb://messaging/original_message?mid='+currentText+'%0D%0A'+landingUrl+currentHashLine+langLine);
+        });
+        $('#socialLine').on('click touchend', function() {
+          $('#socialLine').attr("href",'http://line.me/R/msg/text/?'+currentText+'%0D%0A'+lineUrl+currentHashLine);
+        });
+        $('#socialTwitterSp').on('click touchend', function() {
+          //currentText = encodeURIComponent(currentText);
+          var twitterStr = ' '+landingUrl+currentHashLine+langLine+' #typograffit';
+          twitterStr = encodeURIComponent(twitterStr);
+          twitterStr = currentText + twitterStr;
+          $('#socialTwitterSp').attr("href",'twitter://post?message='+twitterStr);
+//          document.location = 'twitter://post?message='+twitterStr;
+          var time = (new Date()).getTime();
+          setTimeout(function(){
+          var now = (new Date()).getTime();
+          if((now-time)<300) {
+            window.open('http://twitter.com/intent/tweet?text='+currentText+'&amp;hashtags=typograffit&amp;url='+landingUrl+currentHashLine+langLine+'', 'twi', 'width=500 height=300');
+            }
+        }, 200);
+
+        });
+
         //for T-Shirt //                      
-        $("#post_title").value= currentHashLine;
+        //$("#post_title").value= currentHashLine;
+        $('#post_title').attr("value", currentHashLine);
 
       }
 
@@ -189,17 +244,18 @@ $(document).ready(function() {
           var inputData = $('textarea#typoData').val();
           inputData = encodeURIComponent(inputData);
 
-          var src1 = 'http://typograffit.com/rest_json/posts/generate/body:';
-          var src2 = 'http://typograffit.com/rest_json/posts/getImage/post_id:';
-          var src3 = 'http://typograffit.com/posts/compose/';
-          var src4 = 'http://typograffit.com/posts/getImage/';
-          var src5 = 'http://typograffit.com/rest_json/posts/getInfo/post_id:';
+          var src1 = 'http://api.typograffit.com/rest_json/posts/generate/body:';
+          var src2 = 'http://api.typograffit.com/rest_json/posts/getImage/post_id:';
+          var src3 = 'http://api.typograffit.com/posts/compose/';
+          var src4 = 'http://api.typograffit.com/posts/getImage/';
+          var src5 = 'http://api.typograffit.com/rest_json/posts/getInfo/post_id:';
 
           //set layout-css
           $("#typoButton").addClass("deactive");
           $('#typoData').addClass("deactive");
           $("#emoji-button").addClass("deactive");
           $("#loading").fadeIn("slow");
+          $("#urlBoxText").addClass("deactive");
           $("#social a").addClass("deactive");
           $("#productForm input").addClass("loadmask");
           $("#msg").empty();
@@ -213,54 +269,38 @@ $(document).ready(function() {
               // process HASH to IMAGE //
               success: function(data) {
                   console.log("SUCCESS");
-                  var datatxt = $(data.responseText).text();
-                  var jsoncontentid = $.parseJSON(datatxt).post_id;
+                  var jsoncontentid = $.parseJSON(data).post_id;
                   inputTextLine.push(inputData);
                   hashLine.push(jsoncontentid);
                   console.log("HASH:", jsoncontentid);
                   console.log("hashLine:", hashLine);
                   totalHash += 1;
 
-                  // get IMAGE //
-                  $.ajax({
-                    url: src2+jsoncontentid,
-                    contentType: "image/png",
-                    type: 'GET',
-                    timeout: 10000,
-
-                    // get IMAGE to URL(save/share/tShirt) //
-                    success: function(data2) {
-                      console.log("SUCCESS2");
-                      var datatxt2 = $(data2.responseText).text();
-                      //console.log("COMPOSE IMAGE:", src2+jsoncontentid);
-                      //console.log("CONPOSE URL:", src3+jsoncontentid);
-
-                      //for IMAGE //
-                      var sendImg = new Image();
-                      //sendImg.crossOrigin = "Anonymous";
-              			  sendImg.src = src4+jsoncontentid;
+                  var sendImg = new Image();
+                  //sendImg.crossOrigin = "Anonymous";
+                    sendImg.src = src4+jsoncontentid;
                         
                       sendImg.onload = function() {
                         //if text area appears, change into Generate image.
-						  if ($('textarea#typoData').is(':visible')){
-							  $('#typoText').toggle();
-							  $('#owl').toggle();
-                          	$("#emoji-button").removeClass("deactive");
-                          	$('#emoji-button').fadeOut(30);
-						      }
+              if ($('textarea#typoData').is(':visible')){
+                $('#typoText').toggle();
+                $('#owl').toggle();
+                            $("#emoji-button").removeClass("deactive");
+                            $('#emoji-button').fadeOut(30);
+              }
 
-                        //set layout-css
-                        $('#typoData').removeClass("deactive");
-                        $("#loading").hide();
-                        $('#toggle-button').removeClass("deactive");
-                        $("#toggle-button").addClass("typoImage");
-                        $("#typoButton").removeClass("deactive");
-                        $("#productForm input").removeClass("loadmask");
-                        $("#productForm").animate({height:"show", opacity:"show"},300, "easeOutExpo");
+              //set layout-css
+              $('#typoData').removeClass("deactive");
+              $("#loading").hide();
+              $('#toggle-button').removeClass("deactive");
+              $("#toggle-button").addClass("typoImage");
+              $("#typoButton").removeClass("deactive");
+              $("#productForm input").removeClass("loadmask");
+              $("#productForm").animate({height:"show", opacity:"show"},300, "easeOutExpo");
 
-                        //insert Generate Image.
-          						  var content = '<div class="item"><img src="' + src4+jsoncontentid + '" /></div>';
-					           	  owl.data('owlCarousel').addItem(content);
+              //insert Generate Image.
+                var content = '<div class="item"><img src="' + src4+jsoncontentid + '" /></div>';
+                owl.data('owlCarousel').addItem(content);
 
                         //Remove Item if item sum are over Maximum.
                         var maxNum = 7;
@@ -271,22 +311,9 @@ $(document).ready(function() {
                           inputTextLine.shift();
                         }
                         owl.data('owlCarousel').goTo(totalHash);
-          	          }
-                    },
-
-                    // miss IMAGE //
-                    error: function(data2) {
-                      console.log("ERROR2");
-                      $("#loading").hide();
-                      $("#typoButton").removeClass("deactive");
-                      $("#msg").html('Please try it again.');
-                    },
-                    // complete IMAGE //
-                    complete: function(data2) {
-                      console.log("COMPLETE2");
                     }
-                  });
               },
+
               // miss HASH //
               error: function(data) {
                   console.log("ERROR");
@@ -338,6 +365,11 @@ function sOpen(){
     $("#socialSub").animate({height:"show",opacity:"toggle"},500, "easeOutExpo");
     $('body').append('<p class="dummy"></p>');
     console.log("OPEN");
+}
+
+//set urlBox button function
+function urlOpen(){
+    $("#urlBox").animate({height:"toggle",opacity:"toggle"},200, "easeOutExpo");
 }
 
 //for twitter-share function

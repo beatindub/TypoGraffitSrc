@@ -36,6 +36,7 @@ input.loadmask
   width: auto;
   height: auto;
   min-height: 100px;
+  max-height: 300px;
   background-size:contain;  
 }
 
@@ -186,8 +187,8 @@ textarea#typoData.japanese::-moz-placeholder{
   position: absolute;
   text-align: right;
   vertical-align: top;
-  width:580px;
-  max-width:580px;
+  width:310px;
+  max-width:310px;
   right: 10px;
   top: 8px;
   display: none;
@@ -211,7 +212,7 @@ textarea#typoData.japanese::-moz-placeholder{
 #emojiWrap ul li img{
   width: 64px;
   height: auto;
-  margin: 0px 4px;
+  margin: 0px 6px;
 }
 #emojiWrap ul li img:hover{
   opacity:0.6;
@@ -258,20 +259,6 @@ textarea#typoData.japanese::-moz-placeholder{
   font-size:12px;  
 }
 
-/*  URL BOX */
-#urlBox{
-  margin:0 auto;
-  text-align: center;
-  display: none;
-}
-#urlBoxText{
-  width:100%;
-  max-width:240px;
-  font-size:10px;
-  height: 14px;
-  padding: 10px;
-}
-
 /* LOADING */
 #loading{
   position: absolute;
@@ -315,11 +302,6 @@ textarea#typoData.japanese::-moz-placeholder{
 }
 #socialBox #social img{
   margin: auto 4px;
-}
-
-/* USER AGENT INIT */
-#socialBox .dtopshow{
-  display: none;
 }
 
 #socialBox #social img:hover {
@@ -437,17 +419,6 @@ input#cat_tote:hover {
   }
 }
 
-@media screen and (max-width: 670px) {
-  #emojiList{
-    width:390px;
-    max-width:390px;
-  }
-  #emojiWrap ul li img{
-    height: auto;
-    margin: 0px 3px;
-  }
-}
-
 @media screen and (max-width: 480px) {
   #typoText textarea{
     height: 170px;
@@ -476,8 +447,8 @@ input#cat_tote:hover {
   }
 
   #emojiList{
-    width:240px;
-    max-width:240px;
+    width:200px;
+    max-width:200px;
   }
   #emojiWrap ul li img{
     width: 42px;
@@ -485,11 +456,11 @@ input#cat_tote:hover {
     margin: 0px 3px;
   }
   #typoButton{    
-    height: 35px;
-    max-width:300px;
+    height: 29px;
+    max-width:140px;
   }
   #typoButton img{
-    width: 90px;
+    width: 78px;
     padding: 3px;  
   }
 
@@ -498,12 +469,12 @@ input#cat_tote:hover {
     max-height: 200px;
   }
   #socialBox{
-    height: 45px;
+    height: 36px;
   }
   #socialBox #social img{
-    width:45px;
-    height:45px;
-    margin: auto 5px;
+    width:36px;
+    height:36px;
+    margin: auto 3px;
   }
   #social #socialSub{
     width:145px;
@@ -518,15 +489,14 @@ input#cat_tote:hover {
   }
 
   #productForm{
-    height: 64px;
+    height: 48px;
     margin:15px auto;
     font-size:10px;
   }
   #productForm input,
-  #productForm input.off,
   #productForm input:hover{  
-    width:64px;
-    height:64px;
+    width:48px;
+    height:48px;
     background-size:contain;
   }
 }

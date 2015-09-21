@@ -8,6 +8,7 @@ Version: 0.1
 Author URI: 
  */
 //get_template_part('functions/create-product');
+
 function typoProductForm_shortcode() {
 ?>
 <?php
@@ -172,7 +173,7 @@ $contentUrl = content_url(wp-content);
 	</div></div>
 
     <div id="productForm">
-    <p>Create your original products !</p>
+	<p><span style="color: #ffffff; background-color: red;">↓ NEW ↓</span> Create your Original Products using your Message!</p>
     <input type="hidden" id="post_title" name="post_title" value="">
     <input type="submit" class="deactive off" id="cat_shirt" name="cat_shirt" value="shirt">
     <input type="submit" class="deactive off" id="cat_tote" name="cat_tote" value="tote">
@@ -185,14 +186,21 @@ return $html;
 }
 add_shortcode('typoProductForm', 'typoProductForm_shortcode');
 ?>
+
+
 <?php
 function typoProductFormSocial_shortcode() {
 ?>
 <?php
+$pieces = explode("/", $_SERVER["REQUEST_URI"]);
+//$baseImageUrl = 'http://api.typograffit.com/posts/getImage/'.$pieces[2];
+$baseImageUrl = 'http://api.typograffit.com/posts/getImage/'.$_SERVER["REQUEST_URI"];
+/*
 if(isset($_GET['h'])) {
   $hash = $_GET['h'];
   $baseImageUrl = 'http://api.typograffit.com/posts/getImage/'.$hash;
 }
+*/
 $html='';
 $contentUrl = content_url(wp-content);
 ?>
@@ -208,6 +216,7 @@ $contentUrl = content_url(wp-content);
   <!-- typograffit.js  -->
   <script src="'.$contentUrl.'/src/js/typograffit.js"> </script>
   <script src="'.$contentUrl.'/src/js/tumblr-share.js"> </script>
+
 	<div id="baseImage"><img src="'.$baseImageUrl.'"></div>
 	<div id="baseImageToggle"><a href="#functions" class="anchor"><img src="'.$contentUrl.'/src/images/baseImageToggle.png"></a></div>
 
@@ -369,12 +378,23 @@ return $html;
 }
 add_shortcode('typoProductFormSocial', 'typoProductFormSocial_shortcode');
 ?>
+
+
 <?php
 function typoProductFormWithProduct_shortcode() {
 ?>
 <?php
 $html='';
+$lang = '';
+$productText = '';
 $contentUrl = content_url(wp-content);
+//$nonceStr = wp_nonce_field("create_product");
+if(isset($_GET['lang'])) {
+  $lang = $_GET['lang'];
+  $productText = '<p><span style="color: #ffffff; background-color: red;"> <i class="fa  fa-arrow-circle-down"></i> 新機能! <i class="fa  fa-arrow-circle-down"></i> </span> あなたのメッセージからオリジナル商品がつくれます！</p>';
+}else{
+  $productText = '<p><span style="color: #ffffff; background-color: red;"> <i class="fa  fa-arrow-circle-down"></i> NEW! <i class="fa  fa-arrow-circle-down"></i></span> Create your Original Products using your Message!</p>';	
+}
 ?>
 <?php $html ='
 <link rel="stylesheet" type="text/css" href="'.$contentUrl.'/src/css/owl.carousel.css" />
@@ -500,7 +520,6 @@ $contentUrl = content_url(wp-content);
 			</div>
         </div>
             
-            
 	<div id="loading"><img src="'.$contentUrl.'/src/images/ajax-loader.gif"/></div>
 	</div>
 
@@ -512,7 +531,7 @@ $contentUrl = content_url(wp-content);
 	</div>
 
     </form>
-
+    
     <div id="msg"></div>
     <div id="socialBox"><div id="social">
 
@@ -524,17 +543,19 @@ $contentUrl = content_url(wp-content);
 		<a id="socialTumblr" href="#" class="disable dtopshow"><img src="'.$contentUrl.'/src/images/tumblr.png" width="45" height="45" alt="Tumblr" /></a>
 
 		<a href="javascript:void(0)" onClick="urlOpen();" class="dtophide"><img id="" src="'.$contentUrl.'/src/images/link.png" width="45" height="45" alt="LINK" /></a>
-		<a id="socialFacebookSp" href="#" class="disable dtophide"><img src="'.$contentUrl.'/src/images/facebook.png" width="45" height="45" alt="Facebook" /></a>
+		<a id="socialFacebookSp" href="#" class="dtophide"><img src="'.$contentUrl.'/src/images/facebook.png" width="45" height="45" alt="Facebook" /></a>
 		<a id="socialTwitterSp" href="#" class="dtophide"><img src="'.$contentUrl.'/src/images/twitter.png" width="45" height="45" alt="Twitter" /></a>
 		<a id="socialLine" href="#" class="dtophide"><img src="'.$contentUrl.'/src/images/line.png" width="45" height="45" alt="Line" /></a>
+
 	</div></div>
 
-    <div id="urlBox"><input type="text" id="urlBoxText" value="http://typograffit.com/compose/?h=" readonly></div>
+    <div id="urlBox"><input type="text" id="urlBoxText" value="" readonly></div>
 
     <div id="productForm">
-    <p>Create your original products !</p>
+	'.$productText.'
     <form action="./" method="post">
     '.wp_nonce_field("create_product").'
+    <input type="hidden" id="lang" name="lang" value="'.$lang.'">
     <input type="hidden" id="post_title" name="post_title" value="">
     <input type="submit" id="cat_shirt" name="cat_shirt" value="shirt">
     <input type="submit" id="cat_tote" name="cat_tote" value="tote">

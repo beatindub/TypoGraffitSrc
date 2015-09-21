@@ -7,8 +7,11 @@ Author: Yusuke Nakada
 Version: 0.1
 Author URI:
 */
+require_once( ABSPATH . 'wp-content/plugins/printful-shipping-for-woocommerce/includes/class-printful-client.php' );
+require_once( ABSPATH . 'wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-order.php' );
+require_once( ABSPATH . 'wp-content/plugins/woocommerce/includes/class-wc-order.php' );
 /*
-require_once( dirname( __FILE__ ) . '/PrintfulClient.php' );
+require_once( ABSPATH . 'wp-content/plugins/printful-shipping-for-woocommerce/includes/class-printful-client.php' );
 require_once( ABSPATH . 'wp-content/plugins/createPrintfulOrder/PrintfulClient.php' );
 require_once( dirname( __FILE__ ) . '/../woocommerce/includes/abstracts/abstract-wc-order.php' );
 require_once( '/home1/typograf/public_html/typograffit/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-order.php' );
@@ -16,33 +19,28 @@ require_once( '/home1/typograf/public_html/typograffit/wp-content/plugins/woocom
 */
 //Replace this with your API key
 define('API_KEY', 'a05dtjrv-k44x-1493:w2hg-hyxolkgsf60c');
-
 $dtp = new Typograffit_to_Printful ;
-
 class Typograffit_to_Printful{
     function __construct(){
-        //add_action('woocommerce_checkout_order_processed', array( $this, 'typograffit_woocommerce_payment_complete' ),10,1);
-      add_filter( 'woocommerce_payment_complete_order_status', 'typograffit_woocommerce_payment_complete', 10, 2 );
+add_action('woocommerce_checkout_order_processed', array( $this, 'typograffit_woocommerce_payment_complete' ),10,1);
     }
-
-    //function typograffit_woocommerce_payment_complete( $order_id ) {
-    function typograffit_woocommerce_payment_complete( $order_status, $order_id ) {
-
+    function typograffit_woocommerce_payment_complete( $order_id ) {
       //OK
-     if('processing' == $order_status && isset($order_id)){
+     if(isset($order_id)){
+       $order = new WC_Order( $order_id );
 
-        $order = new WC_Order( $order_id );
-
-        //Create Printful API Object 
-    	$pf = new PrintfulClient(API_KEY);
+	//Create Printful API Object 
+    	$pf = new Printful_Client(API_KEY);
 
         //ITEMS
         $items = $order->get_items(); 
         $items_arr = array();
-            error_log('items : ');
-            error_log(print_r($items,true));
-            error_log( "Get orderlist from $order_id", 0 );
-        $shippingMethod = $order->get_shipping_methods();
+
+	$shippingMethods = $order->get_shipping_methods();	
+	foreach ($shippingMethods as $methds){
+		$wc_shippingMethod = $methds['method_id'];
+	}
+	$shippingMethod = str_replace('printful_shipping_','',$wc_shippingMethod);
 
         foreach ( $items as $item ) {
            $product_id = $item['product_id'];
@@ -52,12 +50,9 @@ class Typograffit_to_Printful{
            $product_name = $item['name'];
            $product_variation_id = $item['variation_id'];
            $qty = $item['qty'];
-           $product_line_total = $item['line_total'];
-           $product_retail_price = $product_line_total / $qty;
-           round($product_retail_price,2);
 	
            $size = $item['pa_size'];
-           $hashLine = $this->getPostName($product_id);
+            $hashLine = $this->getPostName($product_id);
            $enlarge_image_url = '';
 
            if($product_author == 999){
@@ -67,11 +62,9 @@ class Typograffit_to_Printful{
                     //$thumbnailSize = $this->getThumbnailSize( $size );
                     $printful_variant_id = $this->getPrintfulVarId( $size );
                     //$preview_thumbnail_id = get_post_meta($product_variation_id, '_thumbnail_id', true);
-                    if($size == 'XS' || $size == 'XS-ja'){
-                      //XS
+                    if($size == 'xs' || $size == 'xs-ja'){
                       $enlarge_image_url = 'http://typograffit.com/wp-content/uploads/typo/'.$hashLine.'/enlarge_10_12.png';
                     }else{
-                      //S - 2XL
                       $enlarge_image_url = 'http://typograffit.com/wp-content/uploads/typo/'.$hashLine.'/enlarge_12_16.png';
                     }
                    //$front_thumbnail_id = get_post_meta($product_id, '_typogenerated_id', true);
@@ -113,7 +106,7 @@ class Typograffit_to_Printful{
                         )
             );
            array_push($items_arr,$item_arr);
-        }
+	}
 
         //SHIPPING ADDRESS
         $shipping_first_name = $order->shipping_first_name;
@@ -126,11 +119,33 @@ class Typograffit_to_Printful{
         $shipping_country_code = $order->shipping_country;
         $shipping_zip = $order->shipping_postcode;
 
+       //check in local env
+        $order_json = array(
+    	        'external_id' => $order_id,
+		'shipping' => $shippingMethod,
+                'recipient' => array(
+                'name' => $shipping_name,
+                'address1' => $shipping_address,
+                'city' => $shipping_city,
+                'state_code' => $shipping_state_code,
+                'country_code' => $shipping_country_code,
+                'zip' => $shipping_zip
+                ),
+            'items' => $items_arr
+            //If, confirm immediately
+            //'confirm'=>1
+        );
+
+        $filename = dirname( __FILE__ ) .'/json.txt';
+        $fp = fopen($filename,'a') or dir('cannot open');
+        fwrite($fp, sprintf(json_encode($order_json)));
+        fclose($fp);
+
         //POST to Printful API
         $order_arr = $pf->post('orders',
             array(
     	        'external_id' => $order_id,
-              'shipping' => $shippingMethod,
+		'shipping' => $shippingMethod,
                 'recipient' => array(
                     'name' => $shipping_name,
                     'address1' => $shipping_address,
@@ -144,15 +159,13 @@ class Typograffit_to_Printful{
             //If, confirm immediately
             //array('confirm'=>1)
         );
-    }
 
-      //NG
+     }//NG
       else{
           error_log( "ERROR : No Order ID" );
       }
-      
-    }
 
+}
 
 //######################
 //get post_author
@@ -171,38 +184,16 @@ private function getPostName( $productID ){
 }
 
 //######################
-//get thumbnail size
-//######################
-private function getThumbnailSize( $size ){
-    $tSize = '';
-    if($size == 'xxlarge' || $size == 'extra-large' || $size == 'large' || $size == 'medium' || $size == 'small'){
-        $tSize = 'large';
-    }elseif($size == 'extra-small' || $size == '12yrs' || $size == '10yrs' || $size == '8yrs' || $size == '6yrs' || $size == '4yrs'){
-        $tSize = 'medium';
-    }elseif($size == '2yrs'){
-        $tSize = 'small';
-    }
-    return $tSize;
-}
-
-//######################
 //Get Printful Variable ID
 //######################
 private function getPrintfulVarId( $size ){
     $id = 0;
-/*
-    if($size == '2XL'){ $id = '9022'; }
-    elseif($size == 'XL'){ $id = '9023'; }
-    elseif($size == 'L'){ $id = '9024'; }
-    elseif($size == 'M'){ $id = '9025'; }
-    elseif($size == 'S'){ $id = '9026'; }
-*/
-    if($size == '2Xl' || $size == '2Xl-ja'){ $id = '378'; }
-    elseif($size == 'XL' || $size == 'Xl-ja'){ $id = '316'; }
-    elseif($size == 'L' || $size == 'l-ja'){ $id = '254'; }
-    elseif($size == 'M' || $size == 'M-ja'){ $id = '192'; }
-    elseif($size == 'S' || $size == 'S-ja'){ $id = '130'; }
-    elseif($size == 'XS' || $size == 'XS-ja'){ $id = '68'; }
+    if($size == '2xl' || $size == '2xl-ja'){ $id = '378'; }
+    elseif($size == 'xl' || $size == 'xl-ja'){ $id = '316'; }
+    elseif($size == 'l' || $size == 'l-ja'){ $id = '254'; }
+    elseif($size == 'm' || $size == 'm-ja'){ $id = '192'; }
+    elseif($size == 's' || $size == 's-ja'){ $id = '130'; }
+    elseif($size == 'xs' || $size == 'xs-ja'){ $id = '68'; }
     return $id;
 }
 }

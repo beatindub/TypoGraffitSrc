@@ -165,6 +165,7 @@ class PrintfulClient {
  * Class PrintfulException Generic Printful exception
  */
 class PrintfulException extends Exception {}
+
 /**
  * Class PrintfulException Printful exception returned from the API
  */

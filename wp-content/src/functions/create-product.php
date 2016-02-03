@@ -139,7 +139,6 @@ function _my_create_product(){
 
             //insert PRODUCT
             if($lang == 'ja'){
-               $_POST['icl_post_language'] = $lang;
                 $post_id = wp_insert_post(array(
                     'post_title' => $post_title_string,
                     'post_name' => $fileName,
@@ -148,6 +147,8 @@ function _my_create_product(){
                     'ping_status' => 'closed',
                     'post_type' => 'product',
                 ), true);
+               $_POST['icl_post_language'] = $lang;
+               wpml_update_translatable_content( 'post_product', $post_id, $lang ); 
                wp_set_post_terms( $post_id, '3031', 'product_cat' );
 
 	        	//CHANGE VARIABLE
@@ -318,7 +319,6 @@ function _my_create_product(){
 
             //insert PRODUCT
             if($lang == 'ja'){
-               $_POST['icl_post_language'] = $lang;
                 $post_id = wp_insert_post(array(
                     'post_title' => $post_title_string,
                     'post_name' => $fileName,
@@ -327,6 +327,8 @@ function _my_create_product(){
                     'ping_status' => 'closed',
                     'post_type' => 'product',
                 ), true);
+               $_POST['icl_post_language'] = $lang;
+               wpml_update_translatable_content( 'post_product', $post_id, $lang ); 
                wp_set_post_terms( $post_id, '3033', 'product_cat' );
             }else{
                 $post_id = wp_insert_post(array(
